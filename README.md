@@ -22,6 +22,7 @@ Unlike other Obsidian integrations, this server works **directly with the vault 
 | `write_note` | Create or overwrite a note |
 | `list_notes` | List `.md` files in a folder |
 | `search_notes` | Full-text search across notes |
+| `delete_note` | Delete a note by relative path |
 | `get_all_notes_content` | Return full content of all notes for analysis |
 | `write_vault_index` | Generate and save vault description + tags table |
 | `read_vault_index` | Read the saved vault description and tags |
