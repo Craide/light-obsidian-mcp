@@ -53,6 +53,17 @@ def search_notes(query: str) -> str:
     return "\n".join(results) if results else "Nothing found"
 
 
+@mcp.tool()
+def delete_note(path: str) -> str:
+    """Delete a note from the vault. path — relative path, e.g. concepts/zettelkasten.md"""
+    full = VAULT / path
+    if not full.exists():
+        return f"File not found: {path}"
+    if not full.is_file():
+        return f"Not a file: {path}"
+    full.unlink()
+    return f"Deleted: {path}"
+
 # ---------------------------------------------------------------------------
 # Vault index  (core/description.md + core/tags.md)
 # ---------------------------------------------------------------------------
