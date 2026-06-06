@@ -1,5 +1,10 @@
 # light-obsidian-mcp
 
+[![PyPI version](https://img.shields.io/pypi/v/light-obsidian-mcp)](https://pypi.org/project/light-obsidian-mcp/)
+[![Python](https://img.shields.io/pypi/pyversions/light-obsidian-mcp)](https://pypi.org/project/light-obsidian-mcp/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub Actions](https://github.com/Craide/light-obsidian-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/Craide/light-obsidian-mcp/actions)
+
 MCP server for working with your Obsidian vault via Claude Desktop and other MCP-compatible clients.
 
 ### Why light-obsidian-mcp?
@@ -25,6 +30,8 @@ Unlike other Obsidian integrations, this server works **directly with the vault 
 
 Requirements: [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
+The example below shows setup for **Claude Desktop**, but the server works with any MCP-compatible client: Cursor, Windsurf, Zed, Continue, and others — the config format is the same.
+
 Add to your Claude Desktop config:
 
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
@@ -44,6 +51,6 @@ Add to your Claude Desktop config:
 }
 ```
 
-Replace `OBSIDIAN_VAULT` with the path to your vault and restart Claude Desktop.
+Replace `OBSIDIAN_VAULT` with the path to your vault and restart your client.
 
 ---
