@@ -1,12 +1,13 @@
 # light-obsidian-mcp
 
-**Language / Язык:** [English](#english) | [Русский](#русский)
-
----
-
-## English
-
 MCP server for working with your Obsidian vault via Claude Desktop and other MCP-compatible clients.
+
+### Why light-obsidian-mcp?
+
+Unlike other Obsidian integrations, this server works **directly with the vault folder** on your file system:
+
+- **No Obsidian plugins required** — nothing to install or configure inside Obsidian itself
+- **Obsidian doesn't need to be running** — read and write notes at any time, even when the app is closed
 
 ### Tools
 
@@ -16,6 +17,9 @@ MCP server for working with your Obsidian vault via Claude Desktop and other MCP
 | `write_note` | Create or overwrite a note |
 | `list_notes` | List `.md` files in a folder |
 | `search_notes` | Full-text search across notes |
+| `get_all_notes_content` | Return full content of all notes for analysis |
+| `write_vault_index` | Generate and save vault description + tags table |
+| `read_vault_index` | Read the saved vault description and tags |
 
 ### Installation
 
@@ -31,7 +35,7 @@ Add to your Claude Desktop config:
   "mcpServers": {
     "obsidian": {
       "command": "uvx",
-      "args": ["light-obsidian-mcp"],
+      "args": ["--python", "3.13", "light-obsidian-mcp"],
       "env": {
         "OBSIDIAN_VAULT": "C:\\path\\to\\your\\obsidian\\vault"
       }
@@ -43,41 +47,3 @@ Add to your Claude Desktop config:
 Replace `OBSIDIAN_VAULT` with the path to your vault and restart Claude Desktop.
 
 ---
-
-## Русский
-
-MCP-сервер для работы с Obsidian vault через Claude Desktop и другие MCP-совместимые клиенты.
-
-### Инструменты
-
-| Инструмент | Описание |
-|---|---|
-| `read_note` | Читает заметку по относительному пути |
-| `write_note` | Создаёт или перезаписывает заметку |
-| `list_notes` | Список `.md` файлов в папке |
-| `search_notes` | Полнотекстовый поиск по содержимому |
-
-### Установка
-
-Требования: [uv](https://docs.astral.sh/uv/getting-started/installation/)
-
-Добавьте в конфиг Claude Desktop:
-
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "obsidian": {
-      "command": "uvx",
-      "args": ["light-obsidian-mcp"],
-      "env": {
-        "OBSIDIAN_VAULT": "C:\\path\\to\\your\\obsidian\\vault"
-      }
-    }
-  }
-}
-```
-
-Замените `OBSIDIAN_VAULT` на путь к вашему vault и перезапустите Claude Desktop.
