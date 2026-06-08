@@ -1,10 +1,12 @@
 [project]
 name = "light-obsidian-mcp"
-version = "0.3.0"
+version = "0.4.0"
+description = "Light MCP server for Obsidian vault — no plugins, no open app required"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]",
+    "pyyaml",
 ]
 
 classifiers = [
@@ -16,6 +18,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Craide/light-obsidian-mcp"
 
 [project.scripts]
 light-obsidian-mcp = "light_obsidian_mcp.server:main"

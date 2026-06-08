@@ -20,23 +20,31 @@ Unlike other Obsidian integrations, this server works **directly with the vault 
 |---|---|
 | `read_note` | Read a note by relative path |
 | `write_note` | Create or overwrite a note |
+| `move_note` | Move or rename a note within the vault |
 | `list_notes` | List `.md` files in a folder |
 | `search_notes` | Full-text search across notes |
 | `delete_note` | Delete a note by relative path |
-| `get_all_notes_content` | Return full content of all notes for analysis |
-| `write_vault_index` | Generate and save vault description + tags table |
-| `read_vault_index` | Read the saved vault description and tags |
+| `get_frontmatter` | Read YAML metadata from a note |
 
 ### Installation
 
-Requirements: [uv](https://docs.astral.sh/uv/getting-started/installation/)
+**1. Install uv**
+
+```bash
+pip install uv
+```
+
+Or see [other installation options](https://docs.astral.sh/uv/getting-started/installation/).
+
+**2. Add to your Claude Desktop config**
 
 The example below shows setup for **Claude Desktop**, but the server works with any MCP-compatible client: Cursor, Windsurf, Zed, Continue, and others — the config format is the same.
 
-Add to your Claude Desktop config:
+Config file location:
 
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json` or `%LOCALAPPDATA%\Packages\Claude_*\LocalCache\Roaming\Claude\claude_desktop_config.json`
+
 
 ```json
 {

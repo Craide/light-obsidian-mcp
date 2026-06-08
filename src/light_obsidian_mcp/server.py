@@ -1,4 +1,6 @@
 import os
+import shutil
+import yaml
 from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
@@ -10,14 +12,20 @@ VAULT = Path(vault_path)
 mcp = FastMCP("vault")
 
 
-# ---------------------------------------------------------------------------
-# Basic note operations
-# ---------------------------------------------------------------------------
+def _safe_path(path: str) -> Path | None:
+    """Resolve path and verify it stays within the vault. Returns None if outside."""
+    full = (VAULT / path).resolve()
+    if not full.is_relative_to(VAULT.resolve()):
+        return None
+    return full
+
 
 @mcp.tool()
 def read_note(path: str) -> str:
     """Read a note from the vault. path — relative path, e.g. concepts/zettelkasten.md"""
-    full = VAULT / path
+    full = _safe_path(path)
+    if full is None:
+        return "Access denied: path is outside the vault"
     if not full.exists():
         return f"File not found: {path}"
     return full.read_text(encoding="utf-8")
@@ -26,16 +34,40 @@ def read_note(path: str) -> str:
 @mcp.tool()
 def write_note(path: str, content: str) -> str:
     """Create or overwrite a note in the vault."""
-    full = VAULT / path
+    full = _safe_path(path)
+    if full is None:
+        return "Access denied: path is outside the vault"
     full.parent.mkdir(parents=True, exist_ok=True)
     full.write_text(content, encoding="utf-8")
     return f"Saved: {path}"
 
 
 @mcp.tool()
+def move_note(src: str, dst: str) -> str:
+    """Move or rename a note within the vault.
+    src — current relative path, dst — new relative path.
+    e.g. move_note('inbox/idea.md', 'concepts/idea.md')"""
+    src_path = _safe_path(src)
+    dst_path = _safe_path(dst)
+    if src_path is None or dst_path is None:
+        return "Access denied: path is outside the vault"
+    if not src_path.exists():
+        return f"File not found: {src}"
+    if not src_path.is_file():
+        return f"Not a file: {src}"
+    if dst_path.exists():
+        return f"Already exists: {dst}"
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(src_path), str(dst_path))
+    return f"Moved: {src} → {dst}"
+
+
+@mcp.tool()
 def list_notes(folder: str = "") -> str:
     """List .md files in a vault folder. folder — relative path, empty = root."""
-    target = VAULT / folder
+    target = _safe_path(folder) if folder else VAULT.resolve()
+    if target is None:
+        return "Access denied: path is outside the vault"
     if not target.exists():
         return f"Folder not found: {folder}"
     files = [str(p.relative_to(VAULT)) for p in target.rglob("*.md")]
@@ -56,7 +88,9 @@ def search_notes(query: str) -> str:
 @mcp.tool()
 def delete_note(path: str) -> str:
     """Delete a note from the vault. path — relative path, e.g. concepts/zettelkasten.md"""
-    full = VAULT / path
+    full = _safe_path(path)
+    if full is None:
+        return "Access denied: path is outside the vault"
     if not full.exists():
         return f"File not found: {path}"
     if not full.is_file():
@@ -64,61 +98,27 @@ def delete_note(path: str) -> str:
     full.unlink()
     return f"Deleted: {path}"
 
-# ---------------------------------------------------------------------------
-# Vault index  (core/description.md + core/tags.md)
-# ---------------------------------------------------------------------------
 
 @mcp.tool()
-def get_all_notes_content() -> str:
-    """Return the full content of every note in the vault.
-    Use this before calling write_vault_index to analyse the vault."""
-    parts = []
-    for p in sorted(VAULT.rglob("*.md")):
-        rel = str(p.relative_to(VAULT))
-        text = p.read_text(encoding="utf-8", errors="ignore")
-        parts.append(f"### {rel}\n{text}")
-    return "\n\n---\n\n".join(parts) if parts else "No notes found"
+def get_frontmatter(path: str) -> str:
+    """Read YAML frontmatter from a note. Returns metadata fields like tags, date, author, etc.
+    Returns empty if the note has no frontmatter."""
+    full = _safe_path(path)
+    if full is None:
+        return "Access denied: path is outside the vault"
+    if not full.exists():
+        return f"File not found: {path}"
+    text = full.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return "No frontmatter found"
+    try:
+        end = text.index("---", 3)
+        raw = text[3:end].strip()
+        data = yaml.safe_load(raw)
+        return yaml.dump(data, allow_unicode=True, sort_keys=False)
+    except Exception as e:
+        return f"Failed to parse frontmatter: {e}"
 
-
-@mcp.tool()
-def write_vault_index(description: str, tags: str) -> str:
-    """Save the vault index: description and tags table.
-    Always call get_all_notes_content first, analyse the notes, then pass:
-      - description: a brief summary of what this vault is about
-      - tags: a markdown table of all tags found across notes with short descriptions
-
-    Saves to:
-      core/description.md
-      core/tags.md
-    """
-    core = VAULT / "core"
-    core.mkdir(parents=True, exist_ok=True)
-
-    (core / "description.md").write_text(description, encoding="utf-8")
-    (core / "tags.md").write_text(tags, encoding="utf-8")
-
-    return "Saved: core/description.md and core/tags.md"
-
-
-@mcp.tool()
-def read_vault_index() -> str:
-    """Read the vault index: description and tags table from core/."""
-    desc_path = VAULT / "Core" / "Description.md"
-    tags_path = VAULT / "Core" / "Tags.md"
-
-    if not desc_path.exists() and not tags_path.exists():
-        return "Vault index not found. Generate it first with write_vault_index."
-
-    parts = []
-    if desc_path.exists():
-        parts.append(f"## Description\n\n{desc_path.read_text(encoding='utf-8')}")
-    if tags_path.exists():
-        parts.append(f"## Tags\n\n{tags_path.read_text(encoding='utf-8')}")
-
-    return "\n\n---\n\n".join(parts)
-
-
-# ---------------------------------------------------------------------------
 
 def main():
     mcp.run(transport="stdio")
