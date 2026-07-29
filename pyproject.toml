@@ -1,11 +1,11 @@
 [project]
 name = "light-obsidian-mcp"
-version = "0.4.0"
+version = "0.4.1"
 description = "Light MCP server for Obsidian vault — no plugins, no open app required"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 dependencies = [
-    "mcp[cli]",
+    "mcp[cli]>=1.20.0,<2.0.0",
     "pyyaml",
 ]
 
